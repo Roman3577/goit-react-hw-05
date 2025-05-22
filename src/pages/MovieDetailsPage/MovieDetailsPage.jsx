@@ -1,15 +1,12 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { useParams, Link, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
+import { useParams, Link, Outlet, useLocation } from 'react-router-dom';
 import { fetchMovieDetails } from '../../api/api';
 import styles from './MovieDetailsPage.module.css';
-
-const MovieCast = lazy(() => import('../../components/MovieCast/MovieCast'));
-const MovieReviews = lazy(() => import('../../components/MovieReviews/MovieReviews'));
 
 function MovieDetailsPage() {
   const { movieId } = useParams();
   const location = useLocation();
-  const backLink = location.state?.from || '/movies';
+  const backLinkRef = useRef(location.state?.from || '/movies');
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
@@ -20,7 +17,7 @@ function MovieDetailsPage() {
 
   return (
     <div className={styles.container}>
-      <Link to={backLink}>← Back</Link>
+      <Link to={backLinkRef.current}>← Back</Link>
       <h1>{movie.title}</h1>
       <p>{movie.overview}</p>
       <nav>
@@ -28,10 +25,7 @@ function MovieDetailsPage() {
         <Link to="reviews">Reviews</Link>
       </nav>
       <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="cast" element={<MovieCast />} />
-          <Route path="reviews" element={<MovieReviews />} />
-        </Routes>
+        <Outlet />
       </Suspense>
     </div>
   );
